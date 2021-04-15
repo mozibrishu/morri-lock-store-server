@@ -44,6 +44,13 @@ client.connect(err => {
             })
     })
 
+    app.get('/allOrders', (req, res) => {
+        ordersCollection.find({}).sort( { orderTime: -1 } )
+            .toArray((err, documents) => {
+                res.send(documents);
+            })
+    })
+
     app.get('/product/:id', (req, res) => {
         productsCollection.find({_id: ObjectId(req.params.id)})
         .toArray ( (err, documents) =>{
@@ -53,6 +60,13 @@ client.connect(err => {
 
     app.delete('/delete/:id', (req, res) =>{
         productsCollection.deleteOne({_id: ObjectId(req.params.id)})
+        .then( result => {
+          res.send(result.deletedCount > 0);
+        })
+      })
+
+      app.delete('/deleteOrder/:id', (req, res) =>{
+        ordersCollection.deleteOne({_id: ObjectId(req.params.id)})
         .then( result => {
           res.send(result.deletedCount > 0);
         })
