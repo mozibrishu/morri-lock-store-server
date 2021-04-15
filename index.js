@@ -28,12 +28,28 @@ client.connect(err => {
             })
     })
 
+    app.post('/addOrder', (req, res) => {
+        const order = req.body;
+        ordersCollection.insertOne(order)
+            .then(result => {
+                console.log(result.insertedCount);
+                res.send(result.insertedCount > 0)
+            })
+    })
+
     app.get('/products', (req, res) => {
         productsCollection.find({})
             .toArray((err, documents) => {
                 res.send(documents);
             })
     })
+
+    app.get('/product/:id', (req, res) => {
+        productsCollection.find({_id: ObjectId(req.params.id)})
+        .toArray ( (err, documents) =>{
+          res.send(documents[0]);
+        })
+      })
 
     app.delete('/delete/:id', (req, res) =>{
         productsCollection.deleteOne({_id: ObjectId(req.params.id)})
@@ -45,6 +61,13 @@ client.connect(err => {
     app.get('/', (req, res) => {
         res.send("It's Working")
     })
+
+    app.get('/orders', (req, res) => {
+        ordersCollection.find({email: req.query.email}).sort( { orderTime: -1 } )
+        .toArray ( (err, documents) =>{
+          res.send(documents);
+        })
+});
 });
 
 
