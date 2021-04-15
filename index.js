@@ -8,7 +8,7 @@ const app = express()
 app.use(bodyParser.json());
 app.use(cors());
 
-const port = 5000;
+const port = process.env.PORT || 5000;
 
 const MongoClient = require('mongodb').MongoClient;
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.isyks.mongodb.net/lockStore?retryWrites=true&w=majority`;
@@ -23,7 +23,6 @@ client.connect(err => {
         const products = req.body;
         productsCollection.insertOne(products)
             .then(result => {
-                console.log(result.insertedCount);
                 res.send(result.insertedCount)
             })
     })
@@ -32,7 +31,6 @@ client.connect(err => {
         const order = req.body;
         ordersCollection.insertOne(order)
             .then(result => {
-                console.log(result.insertedCount);
                 res.send(result.insertedCount > 0)
             })
     })
@@ -45,43 +43,43 @@ client.connect(err => {
     })
 
     app.get('/allOrders', (req, res) => {
-        ordersCollection.find({}).sort( { orderTime: -1 } )
+        ordersCollection.find({}).sort({ orderTime: -1 })
             .toArray((err, documents) => {
                 res.send(documents);
             })
     })
 
     app.get('/product/:id', (req, res) => {
-        productsCollection.find({_id: ObjectId(req.params.id)})
-        .toArray ( (err, documents) =>{
-          res.send(documents[0]);
-        })
-      })
+        productsCollection.find({ _id: ObjectId(req.params.id) })
+            .toArray((err, documents) => {
+                res.send(documents[0]);
+            })
+    })
 
-    app.delete('/delete/:id', (req, res) =>{
-        productsCollection.deleteOne({_id: ObjectId(req.params.id)})
-        .then( result => {
-          res.send(result.deletedCount > 0);
-        })
-      })
+    app.delete('/deleteProduct/:id', (req, res) => {
+        productsCollection.deleteOne({ _id: ObjectId(req.params.id) })
+            .then(result => {
+                res.send(result.deletedCount > 0);
+            })
+    })
 
-      app.delete('/deleteOrder/:id', (req, res) =>{
-        ordersCollection.deleteOne({_id: ObjectId(req.params.id)})
-        .then( result => {
-          res.send(result.deletedCount > 0);
-        })
-      })
+    app.delete('/deleteOrder/:id', (req, res) => {
+        ordersCollection.deleteOne({ _id: ObjectId(req.params.id) })
+            .then(result => {
+                res.send(result.deletedCount > 0);
+            })
+    })
 
     app.get('/', (req, res) => {
         res.send("It's Working")
     })
 
     app.get('/orders', (req, res) => {
-        ordersCollection.find({email: req.query.email}).sort( { orderTime: -1 } )
-        .toArray ( (err, documents) =>{
-          res.send(documents);
-        })
-});
+        ordersCollection.find({ email: req.query.email }).sort({ orderTime: -1 })
+            .toArray((err, documents) => {
+                res.send(documents);
+            })
+    });
 });
 
 
